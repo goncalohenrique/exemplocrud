@@ -1,4 +1,4 @@
-package com.goncalo.exemplocrud.exemplocrud.Repository;
+package com.goncalo.exemplocrud.exemplocrud.repository;
 
 import java.util.List;
 

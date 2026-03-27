@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.goncalo.exemplocrud.exemplocrud.Repository.ContaRepository;
+import com.goncalo.exemplocrud.exemplocrud.repository.ContaRepository;
 import com.goncalo.exemplocrud.exemplocrud.model.Conta;
 
 @Service
