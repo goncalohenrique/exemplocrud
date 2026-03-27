@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CRUD Usuários e Contas</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 30px;
+        font-size: 2.5em;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .card {
+        background: white;
+        border-radius: 10px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .card h2 {
+        color: #667eea;
+        margin-bottom: 20px;
+        font-size: 1.5em;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 10px;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+        font-weight: 500;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        font-family: inherit;
+      }
+
+      input:focus,
+      textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+      }
+
+      button {
+        background: #667eea;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      button:hover {
+        background: #764ba2;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      button.danger {
+        background: #e74c3c;
+      }
+
+      button.danger:hover {
+        background: #c0392b;
+      }
+
+      button.warning {
+        background: #f39c12;
+      }
+
+      button.warning:hover {
+        background: #e67e22;
+      }
+
+      .list-container {
+        margin-top: 20px;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .list-item {
+        background: #f8f9fa;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        border-left: 4px solid #667eea;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .list-item-info {
+        flex: 1;
+      }
+
+      .list-item-info p {
+        margin: 3px 0;
+        color: #555;
+        font-size: 13px;
+      }
+
+      .list-item-info strong {
+        color: #333;
+      }
+
+      .list-item-actions {
+        display: flex;
+        gap: 5px;
+      }
+
+      .list-item-actions button {
+        padding: 5px 10px;
+        font-size: 12px;
+      }
+
+      .full-width {
+        grid-column: 1 / -1;
+      }
+
+      .alert {
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+      }
+
+      .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .loading {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+
+      @media (max-width: 768px) {
+        .content {
+          grid-template-columns: 1fr;
+        }
+
+        h1 {
+          font-size: 1.8em;
+        }
+
+        .list-item {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .list-item-actions {
+          width: 100%;
+        }
+
+        .list-item-actions button {
+          flex: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>📱 CRUD - Usuários e Contas</h1>
+
+      <div class="content">
+        <!-- USUÁRIOS -->
+        <div class="card">
+          <h2>👤 Usuários</h2>
+
+          <div id="usuarioAlert" class="alert hidden"></div>
+
+          <form id="usuarioForm">
+            <div class="form-group">
+              <label for="usuarioNome">Nome:</label>
+              <input type="text" id="usuarioNome" required />
+            </div>
+            <div class="form-group">
+              <label for="usuarioEmail">Email:</label>
+              <input type="email" id="usuarioEmail" required />
+            </div>
+            <div class="form-group">
+              <label for="usuarioIdade">Idade:</label>
+              <input type="number" id="usuarioIdade" min="0" max="150" />
+            </div>
+            <button type="submit">➕ Criar Usuário</button>
+          </form>
+
+          <div class="list-container">
+            <div id="usuariosList"></div>
+          </div>
+        </div>
+
+        <!-- CONTAS -->
+        <div class="card">
+          <h2>💳 Contas</h2>
+
+          <div id="contaAlert" class="alert hidden"></div>
+
+          <form id="contaForm">
+            <div class="form-group">
+              <label for="contaNumeroConta">Número da Conta:</label>
+              <input type="text" id="contaNumeroConta" required />
+            </div>
+            <div class="form-group">
+              <label for="contaSaldo">Saldo:</label>
+              <input type="number" id="contaSaldo" step="0.01" required />
+            </div>
+            <div class="form-group">
+              <label for="contaTitularId">ID do Titular:</label>
+              <input type="number" id="contaTitularId" min="1" required />
+            </div>
+            <button type="submit">➕ Criar Conta</button>
+          </form>
+
+          <div class="list-container">
+            <div id="contasList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = "http://localhost:8080/api";
+
+      // ============ USUÁRIOS ============
+      async function carregarUsuarios() {
+        try {
+          const response = await fetch(`${API_BASE}/usuarios`);
+          const usuarios = await response.json();
+          renderUsuarios(usuarios);
+        } catch (error) {
+          mostrarErro("usuarioAlert", "Erro ao carregar usuários");
+        }
+      }
+
+      function renderUsuarios(usuarios) {
+        const lista = document.getElementById("usuariosList");
+        if (usuarios.length === 0) {
+          lista.innerHTML =
+            '<p style="text-align: center; color: #999;">Nenhum usuário cadastrado</p>';
+          return;
+        }
+
+        lista.innerHTML = usuarios
+          .map(
+            (u) => `
+                <div class="list-item">
+                    <div class="list-item-info">
+                        <p><strong>ID:</strong> ${u.id}</p>
+                        <p><strong>Nome:</strong> ${u.nome}</p>
+                        <p><strong>Email:</strong> ${u.email}</p>
+                        <p><strong>Idade:</strong> ${u.idade || "-"} anos</p>
+                    </div>
+                    <div class="list-item-actions">
+                        <button onclick="editarUsuario(${u.id})" class="warning">✏️ Editar</button>
+                        <button onclick="deletarUsuario(${u.id})" class="danger">🗑️ Deletar</button>
+                    </div>
+                </div>
+            `,
+          )
+          .join("");
+      }
+
+      document
+        .getElementById("usuarioForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const usuario = {
+            nome: document.getElementById("usuarioNome").value,
+            email: document.getElementById("usuarioEmail").value,
+            idade: document.getElementById("usuarioIdade").value
+              ? parseInt(document.getElementById("usuarioIdade").value)
+              : null,
+          };
+
+          try {
+            const response = await fetch(`${API_BASE}/usuarios`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(usuario),
+            });
+
+            if (response.ok) {
+              mostrarSucesso("usuarioAlert", "Usuário criado com sucesso!");
+              document.getElementById("usuarioForm").reset();
+              carregarUsuarios();
+            } else {
+              mostrarErro("usuarioAlert", "Erro ao criar usuário");
+            }
+          } catch (error) {
+            mostrarErro("usuarioAlert", "Erro na requisição");
+          }
+        });
+
+      async function deletarUsuario(id) {
+        if (confirm("Tem certeza que deseja deletar este usuário?")) {
+          try {
+            await fetch(`${API_BASE}/usuarios/${id}`, { method: "DELETE" });
+            mostrarSucesso("usuarioAlert", "Usuário deletado!");
+            carregarUsuarios();
+          } catch (error) {
+            mostrarErro("usuarioAlert", "Erro ao deletar usuário");
+          }
+        }
+      }
+
+      function editarUsuario(id) {
+        const nome = prompt("Novo nome:");
+        if (nome === null) return;
+
+        const email = prompt("Novo email:");
+        if (email === null) return;
+
+        const idade = prompt("Nova idade:");
+
+        const usuario = {
+          nome: nome,
+          email: email,
+          idade: idade ? parseInt(idade) : null,
+        };
+
+        fetch(`${API_BASE}/usuarios/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(usuario),
+        })
+          .then(() => {
+            mostrarSucesso("usuarioAlert", "Usuário atualizado!");
+            carregarUsuarios();
+          })
+          .catch(() => mostrarErro("usuarioAlert", "Erro ao atualizar"));
+      }
+
+      // ============ CONTAS ============
+      async function carregarContas() {
+        try {
+          const response = await fetch(`${API_BASE}/contas`);
+          const contas = await response.json();
+          renderContas(contas);
+        } catch (error) {
+          mostrarErro("contaAlert", "Erro ao carregar contas");
+        }
+      }
+
+      function renderContas(contas) {
+        const lista = document.getElementById("contasList");
+        if (contas.length === 0) {
+          lista.innerHTML =
+            '<p style="text-align: center; color: #999;">Nenhuma conta cadastrada</p>';
+          return;
+        }
+
+        lista.innerHTML = contas
+          .map(
+            (c) => `
+                <div class="list-item">
+                    <div class="list-item-info">
+                        <p><strong>ID:</strong> ${c.id}</p>
+                        <p><strong>Número:</strong> ${c.numeroConta}</p>
+                        <p><strong>Saldo:</strong> R$ ${c.saldo.toFixed(2)}</p>
+                        <p><strong>Titular:</strong> ${c.titular?.nome || "Sem nome"} (ID: ${c.titular?.id})</p>
+                    </div>
+                    <div class="list-item-actions">
+                        <button onclick="deletarConta(${c.id})" class="danger">🗑️ Deletar</button>
+                    </div>
+                </div>
+            `,
+          )
+          .join("");
+      }
+
+      document
+        .getElementById("contaForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const conta = {
+            numeroConta: document.getElementById("contaNumeroConta").value,
+            saldo: parseFloat(document.getElementById("contaSaldo").value),
+            titular: {
+              id: parseInt(document.getElementById("contaTitularId").value),
+            },
+          };
+
+          try {
+            const response = await fetch(`${API_BASE}/contas`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(conta),
+            });
+
+            if (response.ok) {
+              mostrarSucesso("contaAlert", "Conta criada com sucesso!");
+              document.getElementById("contaForm").reset();
+              carregarContas();
+            } else {
+              mostrarErro("contaAlert", "Erro ao criar conta");
+            }
+          } catch (error) {
+            mostrarErro("contaAlert", "Erro na requisição");
+          }
+        });
+
+      async function deletarConta(id) {
+        if (confirm("Tem certeza que deseja deletar esta conta?")) {
+          try {
+            await fetch(`${API_BASE}/contas/${id}`, { method: "DELETE" });
+            mostrarSucesso("contaAlert", "Conta deletada!");
+            carregarContas();
+          } catch (error) {
+            mostrarErro("contaAlert", "Erro ao deletar conta");
+          }
+        }
+      }
+
+      // ============ UTILITÁRIOS ============
+      function mostrarSucesso(elementId, mensagem) {
+        const alert = document.getElementById(elementId);
+        alert.textContent = "✓ " + mensagem;
+        alert.className = "alert alert-success";
+        alert.classList.remove("hidden");
+        setTimeout(() => alert.classList.add("hidden"), 3000);
+      }
+
+      function mostrarErro(elementId, mensagem) {
+        const alert = document.getElementById(elementId);
+        alert.textContent = "✗ " + mensagem;
+        alert.className = "alert alert-error";
+        alert.classList.remove("hidden");
+        setTimeout(() => alert.classList.add("hidden"), 3000);
+      }
+
+      // ============ INICIALIZAÇÃO ============
+      carregarUsuarios();
+      carregarContas();
+    </script>
+  </body>
+</html>
